@@ -1,0 +1,16 @@
+# Local dev / OS
+.DS_Store
+Thumbs.db
+*.log
+
+# Secrets — never commit real keys
+.env
+.env.local
+.env.*.local
+
+# Claude Code internals
+.claude/
+
+# Other projects in this folder (separate repos)
+AT Tool kit/
+Book App/
