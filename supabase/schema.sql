@@ -46,6 +46,9 @@ create trigger on_auth_user_created
   for each row execute procedure public.handle_new_user();
 
 -- 5. Helper functions used by RLS policies
+drop function if exists public.my_role() cascade;
+drop function if exists public.my_athlete_key() cascade;
+
 create or replace function public.my_role()
 returns app_role language sql stable security definer set search_path = public as $$
   select role from public.profiles where id = auth.uid()
