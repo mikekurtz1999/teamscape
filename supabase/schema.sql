@@ -3,6 +3,34 @@
 -- Run this in the Supabase SQL Editor (Project → SQL Editor → New query)
 -- ============================================================
 
+-- 0. Drop existing tables so the schema can be re-run cleanly
+drop table if exists public.hidden_coach_events cascade;
+drop table if exists public.triage_lists         cascade;
+drop table if exists public.triage_queue         cascade;
+drop table if exists public.messages_store       cascade;
+drop table if exists public.gameday              cascade;
+drop table if exists public.at_location          cascade;
+drop table if exists public.org_settings         cascade;
+drop table if exists public.rehab_settings       cascade;
+drop table if exists public.rtp_protocols        cascade;
+drop table if exists public.comm_logs            cascade;
+drop table if exists public.athlete_flags        cascade;
+drop table if exists public.medical_records      cascade;
+drop table if exists public.wellness_ratings     cascade;
+drop table if exists public.daily_checkins       cascade;
+drop table if exists public.rehab_plans          cascade;
+drop table if exists public.restrictions         cascade;
+drop table if exists public.athletes             cascade;
+drop table if exists public.practice_scripts     cascade;
+drop table if exists public.film_notes           cascade;
+drop table if exists public.sc_logs              cascade;
+drop table if exists public.sc_programs          cascade;
+drop table if exists public.teams_posts          cascade;
+drop table if exists public.requests             cascade;
+drop table if exists public.events               cascade;
+drop table if exists public.encounters           cascade;
+drop table if exists public.profiles             cascade;
+
 -- 1. Extensions
 create extension if not exists "uuid-ossp";
 
@@ -16,12 +44,16 @@ exception when duplicate_object then null; end $$;
 -- ============================================================
 create table if not exists public.profiles (
   id           uuid primary key references auth.users on delete cascade,
-  role         app_role not null default 'athlete',
+  role         text not null default 'athlete',
   athlete_key  text,      -- populated for role = 'athlete'
   athlete_name text,
   athlete_team text,
   created_at   timestamptz default now()
 );
+-- Add missing columns if table already existed from a prior run
+alter table public.profiles add column if not exists athlete_key  text;
+alter table public.profiles add column if not exists athlete_name text;
+alter table public.profiles add column if not exists athlete_team text;
 
 -- 4. Auth trigger: auto-insert a profile row on every new sign-up
 create or replace function public.handle_new_user()
@@ -30,7 +62,7 @@ begin
   insert into public.profiles (id, role, athlete_key, athlete_name, athlete_team)
   values (
     new.id,
-    coalesce((new.raw_user_meta_data->>'role')::app_role, 'athlete'),
+    coalesce(new.raw_user_meta_data->>'role', 'athlete'),
     new.raw_user_meta_data->>'athlete_key',
     new.raw_user_meta_data->>'athlete_name',
     new.raw_user_meta_data->>'athlete_team'
@@ -46,9 +78,12 @@ create trigger on_auth_user_created
   for each row execute procedure public.handle_new_user();
 
 -- 5. Helper functions used by RLS policies
+drop function if exists public.my_role() cascade;
+drop function if exists public.my_athlete_key() cascade;
+
 create or replace function public.my_role()
-returns app_role language sql stable security definer set search_path = public as $$
-  select role from public.profiles where id = auth.uid()
+returns text language sql stable security definer set search_path = public as $$
+  select role::text from public.profiles where id = auth.uid()
 $$;
 
 create or replace function public.my_athlete_key()

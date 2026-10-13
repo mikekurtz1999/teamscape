@@ -8567,19 +8567,19 @@ const LS_AT_STATUS = 'at_tracker_at_location_v1';
       session = {
         role:        profile.role,
         athleteKey:  null,
-        athleteName: profile.full_name || null,
-        athleteTeam: profile.sport    || null,
+        athleteName: profile.athlete_name || null,
+        athleteTeam: profile.athlete_team || null,
       };
 
       // For athlete-role users, look up their record in the athletes table
       // so session.athleteKey maps to the right data in athleteData.
       if (profile.role === 'athlete') {
         const { data: ath } = await supabase
-          .from('athletes').select('id, full_name, sport').eq('profile_id', userId).maybeSingle();
+          .from('athletes').select('athlete_key, data').eq('athlete_key', profile.athlete_key).maybeSingle();
         if (ath) {
-          session.athleteKey  = ath.id;
-          session.athleteName = ath.full_name || profile.full_name;
-          session.athleteTeam = ath.sport     || profile.sport;
+          session.athleteKey  = ath.athlete_key;
+          session.athleteName = ath.data?.name  || profile.athlete_name;
+          session.athleteTeam = ath.data?.sport || profile.athlete_team;
         }
       }
     }
