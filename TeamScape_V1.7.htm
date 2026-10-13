@@ -8242,9 +8242,9 @@ const LS_AT_STATUS = 'at_tracker_at_location_v1';
     // =========================================================
     const SUPABASE_URL      = 'https://iimcqydzdimawaydkzqy.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlpbWNxeWR6ZGltYXdheWRrenF5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2NjA1OTMsImV4cCI6MjA5MzIzNjU5M30.f8oNRtmScuBfs9kUhrLoXwRT0kfEvkjsPlVaOPHXp5c';
-    // `supabase` is the canonical client used throughout the app.
-    // `_sbClient` is kept as an alias so the write-sync helpers continue to work.
-    const supabase  = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // The CDN exposes `var supabase` globally; overwrite it with the client instance
+    // rather than redeclaring with `const` (which causes a SyntaxError in browsers).
+    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const _sbClient = supabase;
 
     // Holds the full profile row for the currently signed-in user.
