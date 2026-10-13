@@ -16,12 +16,16 @@ exception when duplicate_object then null; end $$;
 -- ============================================================
 create table if not exists public.profiles (
   id           uuid primary key references auth.users on delete cascade,
-  role         app_role not null default 'athlete',
+  role         text not null default 'athlete',
   athlete_key  text,      -- populated for role = 'athlete'
   athlete_name text,
   athlete_team text,
   created_at   timestamptz default now()
 );
+-- Add missing columns if table already existed from a prior run
+alter table public.profiles add column if not exists athlete_key  text;
+alter table public.profiles add column if not exists athlete_name text;
+alter table public.profiles add column if not exists athlete_team text;
 
 -- 4. Auth trigger: auto-insert a profile row on every new sign-up
 create or replace function public.handle_new_user()
@@ -30,7 +34,7 @@ begin
   insert into public.profiles (id, role, athlete_key, athlete_name, athlete_team)
   values (
     new.id,
-    coalesce((new.raw_user_meta_data->>'role')::app_role, 'athlete'),
+    coalesce(new.raw_user_meta_data->>'role', 'athlete'),
     new.raw_user_meta_data->>'athlete_key',
     new.raw_user_meta_data->>'athlete_name',
     new.raw_user_meta_data->>'athlete_team'
