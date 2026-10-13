@@ -3,6 +3,34 @@
 -- Run this in the Supabase SQL Editor (Project → SQL Editor → New query)
 -- ============================================================
 
+-- 0. Drop existing tables so the schema can be re-run cleanly
+drop table if exists public.hidden_coach_events cascade;
+drop table if exists public.triage_lists         cascade;
+drop table if exists public.triage_queue         cascade;
+drop table if exists public.messages_store       cascade;
+drop table if exists public.gameday              cascade;
+drop table if exists public.at_location          cascade;
+drop table if exists public.org_settings         cascade;
+drop table if exists public.rehab_settings       cascade;
+drop table if exists public.rtp_protocols        cascade;
+drop table if exists public.comm_logs            cascade;
+drop table if exists public.athlete_flags        cascade;
+drop table if exists public.medical_records      cascade;
+drop table if exists public.wellness_ratings     cascade;
+drop table if exists public.daily_checkins       cascade;
+drop table if exists public.rehab_plans          cascade;
+drop table if exists public.restrictions         cascade;
+drop table if exists public.athletes             cascade;
+drop table if exists public.practice_scripts     cascade;
+drop table if exists public.film_notes           cascade;
+drop table if exists public.sc_logs              cascade;
+drop table if exists public.sc_programs          cascade;
+drop table if exists public.teams_posts          cascade;
+drop table if exists public.requests             cascade;
+drop table if exists public.events               cascade;
+drop table if exists public.encounters           cascade;
+drop table if exists public.profiles             cascade;
+
 -- 1. Extensions
 create extension if not exists "uuid-ossp";
 
