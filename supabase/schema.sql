@@ -50,8 +50,8 @@ drop function if exists public.my_role() cascade;
 drop function if exists public.my_athlete_key() cascade;
 
 create or replace function public.my_role()
-returns app_role language sql stable security definer set search_path = public as $$
-  select role from public.profiles where id = auth.uid()
+returns text language sql stable security definer set search_path = public as $$
+  select role::text from public.profiles where id = auth.uid()
 $$;
 
 create or replace function public.my_athlete_key()
